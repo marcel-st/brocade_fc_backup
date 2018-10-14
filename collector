@@ -1,0 +1,30 @@
+#!/bin/bash
+#
+##################################
+#
+# requires switches.lst
+# switches file layout is "<IP>:<NAME>" 
+#
+#################################
+
+USER='XxXxX'
+PASS='xXxXx'
+COPIES=3
+BASE=$HOME
+
+for N in `cat $BASE/switches.lst`;
+do
+	NAME=`echo $N | cut -f2 -d:`
+	IP=`echo $N | cut -f1 -d:`
+	echo "retrieving config from $NAME"
+	echo $NAME
+	echo $IP
+	i=$(($COPIES - 1))
+	while [ $i -ge 0 ];
+	do
+		[ -s $BASE/$NAME.$i.gz ] && mv $BASE/$NAME.$i.gz $BASE/$NAME.$(($i+1)).gz
+		i=$(($i-1))
+	done
+#	expect -c 'spawn ssh $USER@$IP ; expect password ; send "$PASS\n" ; showconfig > $BASE/store'
+	expect -c 'spawn ssh $USER@$IP ; expect password ; send "$PASS\n" ; cat standby.sh > $BASE/$NAME.1'
+done
